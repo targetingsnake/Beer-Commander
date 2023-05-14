@@ -1,0 +1,10 @@
+﻿{
+  "SQlServer": "localhost",
+  "SQlUser": "martin",
+  "SQlPassword": "pwd",
+  "DiscordToken": "TokenDc",
+  "TelegramToken": "TokenTe",
+  "MasterTelegram": [],
+  "MasterDiscord": [],
+  "Hosts": []
+}
