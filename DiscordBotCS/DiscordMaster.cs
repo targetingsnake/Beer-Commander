@@ -251,6 +251,10 @@ namespace DiscordBot
             }
             foreach (string k in result.Keys)
             {
+                if (k == "message")
+                {
+                    continue;
+                }
                 if (result[k].Length > 900)
                 {
                     Console.WriteLine(k + ": " + result[k]);
