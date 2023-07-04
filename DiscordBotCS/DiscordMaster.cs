@@ -68,14 +68,14 @@ namespace DiscordBot
                 globalCommand_infome.WithName("infome");
                 globalCommand_infome.WithDescription("Answers with user information");
                 applicationCommandProperties.Add(globalCommand_infome.Build());
-            
+
                 // Let's do our global command
 
                 Dictionary<ulong, List<GameServer>> guildServers = new Dictionary<ulong, List<GameServer>>();
                 Dictionary<ulong, SlashCommandBuilder> guildCommands = new Dictionary<ulong, SlashCommandBuilder>();
-                foreach(GameServer g in Distribution.GameServers.Values)
+                foreach (GameServer g in Distribution.GameServers.Values)
                 {
-                    foreach(ulong guid in g.GuildID)
+                    foreach (ulong guid in g.GuildID)
                     {
                         if (!guildServers.ContainsKey(guid))
                         {
@@ -118,7 +118,7 @@ namespace DiscordBot
                     var globalCommand_status = new SlashCommandBuilder();
                     globalCommand_status.WithName("status");
                     globalCommand_status.WithDescription("Gibt Status des Gameserver zurück");
-                    globalCommand_status.AddOption(serverOption); 
+                    globalCommand_status.AddOption(serverOption);
                     applicationCommandPropertiesGuild.Add(globalCommand_status.Build());
 
                     var globalCommand_test = new SlashCommandBuilder();
@@ -217,11 +217,11 @@ namespace DiscordBot
                 await command.RespondAsync("Operation not permited in DM");
                 return;
             }
-            SocketGuild guild = _client.GetGuild((ulong) command.GuildId);
+            SocketGuild guild = _client.GetGuild((ulong)command.GuildId);
             SocketGuildUser usr = guild.GetUser(command.User.Id);
             SocketRole[] roles = usr.Roles.ToArray();
             bool roleFound = false;
-            foreach ( var role in roles )
+            foreach (var role in roles)
             {
                 if (allowedRoles.Contains(role.Id))
                 {
@@ -231,20 +231,24 @@ namespace DiscordBot
             if ((!allowedUsers.Contains(command.User.Id) && !roleFound && !_Masters.Contains(command.User.Id)) || path == "")
             {
                 emb.WithAuthor(command.User.Username, command.User.GetAvatarUrl());
-                emb.WithTitle("Server gestartet");
+                emb.WithTitle("Fehler!");
                 emb.AddField("Fehler", "Unauthorized");
                 emb.AddField("Status", "Server nicht gestartet");
                 embeds[0] = emb.Build();
                 await command.RespondAsync("", embeds);
                 return;
             }
-            if ( gameservercmd == "start" || gameservercmd == "stop" || gameservercmd == "update")
-            {
-                await command.RespondAsync("Command erhalten, nach Beendigunge wird eine Nachricht geposted", ephemeral: true);
-            }
+            await command.RespondAsync("Command erhalten, nach Beendigunge wird eine Nachricht geposted", ephemeral: false);
             Dictionary<string, string> result = Common.HttpRequest.SendGetRequest(path + "/" + gameservercmd);
             emb.WithAuthor(command.User.Username, command.User.GetAvatarUrl());
-            emb.WithTitle("Server gestartet");
+            if (result.Keys.Contains("message"))
+            {
+                emb.WithTitle(result["message"]);
+            }
+            else
+            {
+                emb.WithTitle("Return Message");
+            }
             foreach (string k in result.Keys)
             {
                 if (result[k].Length > 900)
@@ -271,12 +275,8 @@ namespace DiscordBot
                 }
             }
             embeds[0] = emb.Build();
-            if (gameservercmd == "start" || gameservercmd == "stop" || gameservercmd == "update")
-            {
-                await command.FollowupAsync("", embeds);
-                return;
-            }
-            await command.RespondAsync("", embeds);
+            await command.FollowupAsync("", embeds);
+            //await command.RespondAsync("", embeds);
         }
     }
 }
