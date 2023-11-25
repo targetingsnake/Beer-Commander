@@ -239,48 +239,54 @@ namespace DiscordBot
                 return;
             }
             await command.RespondAsync("Command erhalten, nach Beendigunge wird eine Nachricht geposted", ephemeral: false);
-            Dictionary<string, string> result = Common.HttpRequest.SendGetRequest(path + "/" + gameservercmd);
-            emb.WithAuthor(command.User.Username, command.User.GetAvatarUrl());
-            if (result.Keys.Contains("message"))
+            try
             {
-                emb.WithTitle(result["message"]);
-            }
-            else
-            {
-                emb.WithTitle("Return Message");
-            }
-            foreach (string k in result.Keys)
-            {
-                if (k == "message")
+                Dictionary<string, string> result = Common.HttpRequest.SendGetRequest(path + "/" + gameservercmd);
+                emb.WithAuthor(command.User.Username, command.User.GetAvatarUrl());
+                if (result.Keys.Contains("message"))
                 {
-                    continue;
-                }
-                if (result[k].Length > 900)
-                {
-                    Console.WriteLine(k + ": " + result[k]);
-
-                    //emb.AddField(k, "```" +  Common.functions.RemoveColorPrefixes(result[k].Substring(0, 900)) + "```", inline: false);
-                    //string r = Common.functions.RemoveColorPrefixes(result[k]);
-                    string r = result[k];
-                    string[] lines = Common.functions.SplitStringOnNewlines(r, 900);
-                    foreach (string line in lines)
-                    {
-                        //Console.WriteLine(k + ": " + result[k]);
-
-                        emb.AddField(k, "```" + line + "```", inline: false);
-                    }
+                    emb.WithTitle(result["message"]);
                 }
                 else
                 {
-                    string r = Common.functions.RemoveAnsiEscapeCodes(result[k]);
-                    r = Common.functions.RemoveColorPrefixes(r);
-                    Console.WriteLine(k + ": " + result[k]);
-                    emb.AddField(k, "```" + r + "```", inline: false);
+                    emb.WithTitle("Return Message");
                 }
+                foreach (string k in result.Keys)
+                {
+                    if (k == "message")
+                    {
+                        continue;
+                    }
+                    if (result[k].Length > 900)
+                    {
+                        Console.WriteLine(k + ": " + result[k]);
+
+                        //emb.AddField(k, "```" +  Common.functions.RemoveColorPrefixes(result[k].Substring(0, 900)) + "```", inline: false);
+                        //string r = Common.functions.RemoveColorPrefixes(result[k]);
+                        string r = result[k];
+                        string[] lines = Common.functions.SplitStringOnNewlines(r, 900);
+                        foreach (string line in lines)
+                        {
+                            //Console.WriteLine(k + ": " + result[k]);
+
+                            emb.AddField(k, "```" + line + "```", inline: false);
+                        }
+                    }
+                    else
+                    {
+                        string r = Common.functions.RemoveAnsiEscapeCodes(result[k]);
+                        r = Common.functions.RemoveColorPrefixes(r);
+                        Console.WriteLine(k + ": " + result[k]);
+                        emb.AddField(k, "```" + r + "```", inline: false);
+                    }
+                }
+                embeds[0] = emb.Build();
+                await command.FollowupAsync("", embeds);
+                //await command.RespondAsync("", embeds);
+            } 
+            catch (Exception ex) {
+                await command.FollowupAsync("An error Occured, try Again Later", ephemeral: false);
             }
-            embeds[0] = emb.Build();
-            await command.FollowupAsync("", embeds);
-            //await command.RespondAsync("", embeds);
         }
     }
 }
